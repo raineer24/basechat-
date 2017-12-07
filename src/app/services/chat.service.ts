@@ -10,14 +10,26 @@ import { ChatMessage } from '../models/chat-message.model';
 
 @Injectable()
 export class ChatService {
+	user : any;
 	chatMessages: AngularFireList<ChatMessage[]>;
 	chatMessage: ChatMessage;
+	userName: Observable<string>;
 
-  constructor() { }
+  constructor(
+  	private db: AngularFireDatabase,
+  	private afAuth: AngularFireAuth
+  	) {
+  			this.afAuth.authState.subscribe(auth =>{
+  				if (auth !== undefined && auth !== null) {
+
+  					this.user = auth;
+  				}
+  			});
+  	 }
 
   sendMessage(msg: string) {
 		const timestamp = this.getTimeStamp(); 
-		const email = this.user.email;
+		const email = this.user.email;   
 			this.chatMessages = this.getMessages();
 			this.chatMessages.push({
 				message: msg,
@@ -25,6 +37,15 @@ export class ChatService {
 				userName: this.userName,
 				email: email
 			});
+  }
+
+  getTimeStamp() {
+  		const now = new Date();
+  		const date = now.getUTCFullYear() + '/' +
+  								 (now.getUTCMonth() + 1) + '/' +
+  								 now.getUTCDate();
+  		const time = now.getUTCFullYear() + ':' +
+  								now.getUTCMinutes()						 
   }
 
 }
